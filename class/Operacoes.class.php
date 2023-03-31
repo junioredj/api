@@ -819,8 +819,116 @@
                 }
         }
 
+        public static function getTagsByCliente($email)
+        {
+                try
+                {
+                        $con = Conexao::conectar();
+
+                }
+                catch(PDOException $erro)
+                {
+                        throw new PDOException("Erro ao conectar com banco de dados ".$erro->getMessage());
+                }
+
+                try
+                {
+                        
+                        $sql = "select tag from tb_operacoes where email = :email group by tag order by tag asc;";
+                        $pst = $con->prepare($sql);
+                        $pst->bindParam(":email", $email);
+                        $pst->execute();
+
+                        
+                        $dados = $pst->fetchAll(PDO::FETCH_OBJ);
+                        
+
+                        return json_encode($dados);
+
+
+                }
+                catch(PDOException $erro)
+                {
+                        throw new PDOException("Erro ao consultar operações ".$erro->getMessage());
+                }
+        }
         
 
+        public static function getOperacoesDayTradeByCliente($email)
+        {
+                try
+                {
+                        $con = Conexao::conectar();
+
+                }
+                catch(PDOException $erro)
+                {
+                        throw new PDOException("Erro ao conectar com banco de dados ".$erro->getMessage());
+                }
+
+                try
+                {
+                        $sql = "select id, conta, titular, data_arquivo, ativo, abertura, fechamento, tempo_operacao, qtd_compra, qtd_venda, lado, preco_compra, preco_venda, preco_mercado, resultado, resultado_percentual, resultado_operacao, resultado_operacao_percentual, total, tet, tag, email, created from tb_operacoes where email = :email and daytrade = true order by fechamento asc;";
+                        $pst = $con->prepare($sql);
+                        $pst->bindParam(":email", $email);
+                        $pst->execute();
+                        
+                        $dados = $pst->fetchAll(PDO::FETCH_OBJ);
+
+                        //return json_encode(array('a' => 1, 'b' => 2, 'c' => 3, 'd' => 4, 'e' => 5));
+                        $qtd_vendido = 0;
+                        $qtd_comprado= 0;
+
+                        $json = array();
+                        foreach($dados as $dado)
+                        {
+
+                                if(strtolower($dado->lado) == "v")
+                                        $qtd_vendido++;
+                                else
+                                        $qtd_comprado;
+                                $itens = array(
+                                        'dt_abertura' => $dado->abertura,
+                                        'dt_fechamento' => $dado->fechamento,
+                                        'codigo' => $dado->ativo,
+                                        'lado' => $dado->lado,
+                                        'qty_compra' => $dado->qtd_compra,
+                                        'qty_venda' => $dado->qtd_venda,
+                                        'preco_compra' => $dado->preco_compra,
+                                        'preco_venda' => $dado->preco_venda,
+                                        'res_bruto' => $dado->resultado,
+                                        'corretagem' => "R$0",
+                                        'taxas' => "R$0",
+                                        'res_liq' => $dado->resultado,
+                                        'tags' => $dado->tag,
+                                        'pct' => "%",
+                                        'opcoes' => " "
+                                );
+
+                                array_push($json, $itens);
+                                
+                        }
+
+                        
+                        $retorno['comprado'] = $qtd_comprado;
+                        $retorno['vendido'] = $qtd_vendido;
+                        
+
+                        return json_encode($json);
+    
+
+                        
+
+
+
+
+
+                }
+                catch(PDOException $erro)
+                {
+                        throw new PDOException("Erro ao consultar operações ".$erro->getMessage());
+                }
+        }
         
     }
 ?>

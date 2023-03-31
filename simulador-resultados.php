@@ -8,6 +8,7 @@
     $tipo = $_REQUEST['type'];
     $lado = $_REQUEST['lado'];
     $codigo = $_REQUEST['codigo'];
+    $email = $_REQUEST['email'];
 
 
 
@@ -45,15 +46,15 @@
     else if($data == "tudo")
         $data_historico = 0;
 
-    $operacoes = json_decode(Operacoes::getOperacoesByClienteSimulator('juniordomingos738@gmail.com', $tag, $lado, $tipo, $codigo, $data_historico));
+    $operacoes = json_decode(Operacoes::getOperacoesByClienteSimulator($email, $tag, $lado, $tipo, $codigo, $data_historico));
 
     $evolucao_patrimonial = array();
     foreach($operacoes as $operacao)
     {
-        array_push($evolucao_patrimonial, array("fechamento" => $operacao->dt_fechamento, "profit", $operacao->res_liq));
+        array_push($evolucao_patrimonial, $operacao->res_liq);
     }
 
-    $dados['evolucao_patrimonial'] = $evolucao_patrimonial;
+    $dados['chart_lucro']["data"] = $evolucao_patrimonial;
     $dados['trades'] = $operacoes;
     echo json_encode($dados);
 

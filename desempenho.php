@@ -109,7 +109,7 @@ try
         if($operacao->qty_compra == $operacao->qty_venda)
         {
 
-            array_push($evolucao_patrimonial, array("data" => $operacao->dt_fechamento, "profit" => $operacao->res_liq));
+            array_push($evolucao_patrimonial, $operacao->res_liq);
 
 
             //Soma o lucro do dia
@@ -140,9 +140,9 @@ try
             {
                 $qtd_compra++;
                 $total_pontos += $operacao->preco_compra - $operacao->preco_venda;
-                $pontos_mes += $operacao->preco_compra - $operacao->preco_venda;
+                $pontos_mes +=($operacao->preco_venda - $operacao->preco_compra);
                 $lp_comprado += $operacao->res_liq;
-                $pontos_qtd += ($operacao->preco_compra - $operacao->preco_venda) * $operacao->qty_venda;
+                $pontos_qtd += ($operacao->preco_venda - $operacao->preco_compra) * $operacao->qty_venda;
             
             }
             
@@ -230,6 +230,7 @@ try
     $dados['dias_positivos'] =              $dias_positivos;
     $dados['media_dia_liq'] =               ($qtd_dias_pregao > 0)? number_format(($lucro_bruto + $perda_bruta) / $qtd_dias_pregao, 2, ",", ""): "0.00";
     $dados['media_dia_bruto'] =             ($qtd_dias_pregao > 0)? number_format(($lucro_bruto) / $qtd_dias_pregao, 2, ",", ""): "0.00";
+    $dados['volume_medio_dia'] =             ($qtd_dias_pregao > 0)? number_format(($volume_negociado) / $qtd_dias_pregao, 2, ",", ""): "0.00";
 
     $dados['mes'] = $meses;
     $dados['evolucao_patrimonial'] =        $evolucao_patrimonial;
