@@ -512,7 +512,7 @@
         }
 
 
-        public static function getOperacoesByCliente($email)
+        public static function getOperacoesByCliente($email, $data = null)
         {
                 try
                 {
@@ -526,10 +526,15 @@
 
                 try
                 {
-                        $sql = "select id, conta, titular, data_arquivo, ativo, abertura, fechamento, tempo_operacao, qtd_compra, qtd_venda, lado, preco_compra, preco_venda, preco_mercado, resultado, resultado_percentual, resultado_operacao, resultado_operacao_percentual, total, tet, tag, email, created from tb_operacoes where email = :email order by fechamento asc;";
+                        $concatenacao = "";;
+                        if($data != null)
+                                $concatenacao .= " and fechamento >= '".$data."'";
+
+                        $sql = "select id, conta, titular, data_arquivo, ativo, abertura, fechamento, tempo_operacao, qtd_compra, qtd_venda, lado, preco_compra, preco_venda, preco_mercado, resultado, resultado_percentual, resultado_operacao, resultado_operacao_percentual, total, tet, tag, email, created from tb_operacoes where email = :email ".$concatenacao." order by fechamento asc;";
                         $pst = $con->prepare($sql);
                         $pst->bindParam(":email", $email);
                         $pst->execute();
+                        // echo $pst->debugDumpParams();
                         
                         $dados = $pst->fetchAll(PDO::FETCH_OBJ);
 
